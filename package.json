@@ -33,5 +33,8 @@
     "webpack": "^5.51.1",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.3.1"
+  },
+  "dependencies": {
+    "@dvgis/cesium-map": "^2.6.1"
   }
 }
