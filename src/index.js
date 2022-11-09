@@ -1,4 +1,4 @@
-import { Ion, Viewer, createWorldTerrain, createOsmBuildings, Cartesian3, Math } from "cesium";
+import { Ion, Viewer, createWorldTerrain, createOsmBuildings, Cartesian3, Math,IonResource,GeoJsonDataSource,ClassificationType } from "cesium";
 
 import {AmapImageryProvider,CoordTransform} from './cesium-map'
 import "cesium/Build/Cesium/Widgets/widgets.css";
@@ -9,7 +9,7 @@ import "../src/css/main.css"
  
 // Your access token can be found at: https://cesium.com/ion/tokens.
 // This is the default access token
-Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+Ion.defaultAccessToken =  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1Mjc3MjlkYS03OTcyLTRjOGMtYWYwOC1hNzM4MjI3NWUyMTMiLCJpZCI6MTE0MDQ2LCJpYXQiOjE2Njc4NzI3Nzh9.hLyNLUZKhv2tkHKwPa-HXDOvuLVj3gZ9Z8z9xYaZPXE'
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer('cesiumContainer', {
@@ -17,7 +17,7 @@ const viewer = new Viewer('cesiumContainer', {
 });
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
-viewer.scene.primitives.add(createOsmBuildings());   
+// viewer.scene.primitives.add(createOsmBuildings());   
 
 
 //WGS84 下模型位置正确
@@ -42,3 +42,27 @@ viewer.camera.flyTo({
   //   pitch : Math.toRadians(-15.0),
   // }
 });
+
+
+// STEP 3 CODE
+async function addBuildingGeoJSON() {
+  // Load the GeoJSON file from Cesium ion.
+  const geoJSONURL = await IonResource.fromAssetId(1394429);
+  // Create the geometry from the GeoJSON, and clamp it to the ground.
+  const geoJSON = await GeoJsonDataSource.load(geoJSONURL, { clampToGround: true });
+  // Add it to the scene.
+  const dataSource = await viewer.dataSources.add(geoJSON);
+  // By default, polygons in CesiumJS will be draped over all 3D content in the scene.
+  // Modify the polygons so that this draping only applies to the terrain, not 3D buildings.
+  for (const entity of dataSource.entities.values) {
+    // entity.polygon.classificationType = ClassificationType.TERRAIN;
+  }
+  // Move the camera so that the polygon is in view.
+  viewer.flyTo(dataSource);
+}
+
+addBuildingGeoJSON();
+ 
+
+
+
