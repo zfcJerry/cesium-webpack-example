@@ -1,4 +1,20 @@
-import { Matrix4, Matrix3, Ion, Viewer, Transforms, HeadingPitchRoll, createWorldTerrain, createOsmBuildings, Cartesian3, Math, IonResource, GeoJsonDataSource, ClassificationType } from "cesium";
+import {
+  Matrix4,
+  Matrix3,
+  Ion,
+  Camera,
+  Viewer,
+  Transforms,
+  HeadingPitchRoll,
+  createWorldTerrain,
+  createOsmBuildings,
+  Cartesian3,
+  Math,
+  IonResource,
+  GeoJsonDataSource,
+  ClassificationType,
+  Rectangle
+} from "cesium";
 
 import { AmapImageryProvider, CoordTransform } from './cesium-map'
 import "cesium/Build/Cesium/Widgets/widgets.css";
@@ -13,6 +29,18 @@ import 'jquery-ui';
 // Your access token can be found at: https://cesium.com/ion/tokens.
 // This is the default access token
 Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1Mjc3MjlkYS03OTcyLTRjOGMtYWYwOC1hNzM4MjI3NWUyMTMiLCJpZCI6MTE0MDQ2LCJpYXQiOjE2Njc4NzI3Nzh9.hLyNLUZKhv2tkHKwPa-HXDOvuLVj3gZ9Z8z9xYaZPXE'
+
+const ws=[114.191718,30.532629]
+const en = [114.203294,30.527084]
+const wsr = CoordTransform.GCJ02ToWGS84(...ws);
+const enr = CoordTransform.GCJ02ToWGS84(...en);
+
+const extent = Rectangle.fromDegrees(...wsr,...enr);
+Camera.DEFAULT_VIEW_RECTANGLE = extent;
+Camera.DEFAULT_VIEW_FACTOR = 0;
+
+
+
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer('cesiumContainer', {
@@ -30,6 +58,20 @@ const viewer = new Viewer('cesiumContainer', {
 });
 
 viewer.scene.globe.enableLighting = true;//启用以太阳为光源的地球
+
+window.viewer=viewer;
+
+// var positionC;
+//
+// Sandcastle.addToolbarButton('Save', function() {
+//   positionC = viewer.scene.camera.positionWC.clone();
+// });
+//
+// Sandcastle.addToolbarButton('Load', function() {
+//   viewer.scene.camera.setView({
+//     destination:  positionC.clone()
+//   });
+// });
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 // viewer.scene.primitives.add(createOsmBuildings());   
@@ -53,12 +95,12 @@ const des = CoordTransform.GCJ02ToWGS84(...ori);
 
 
 //var datasource = viewer.dataSources.add(Cesium.GeoJsonDataSource.load("https://geo.datav.aliyun.com/areas_v2/bound/100000.json"));
-var datasource = viewer.dataSources.add(GeoJsonDataSource.load("/zzz-cesium/geojson/武汉市.json"));
-viewer.zoomTo(datasource);
+// var datasource = viewer.dataSources.add(GeoJsonDataSource.load("/zzz-cesium/geojson/武汉市.json"));
+// viewer.zoomTo(datasource);
 
 
 const position = Cartesian3.fromDegrees(...des, 10);
-let heading = Math.toRadians(0);
+let heading = Math.toRadians(-54);
 let pitch = Math.toRadians(90);
 let roll = Math.toRadians(0);
 const hpr = new HeadingPitchRoll(heading, pitch, roll);
@@ -95,13 +137,13 @@ const entityNew = viewer.entities.add({
 
 console.log($('toolbar'));
 
-viewer.camera.flyTo({
-  destination: Cartesian3.fromDegrees(...des, 15000),
-  // orientation : {
-  //   heading : Math.toRadians(0.0),
-  //   pitch : Math.toRadians(-15.0),
-  // }
-});
+// viewer.camera.flyTo({
+//   destination: Cartesian3.fromDegrees(...des, 15000),
+//   // orientation : {
+//   //   heading : Math.toRadians(0.0),
+//   //   pitch : Math.toRadians(-15.0),
+//   // }
+// });
 
 
 
@@ -127,6 +169,7 @@ async function addBuildingGeoJSON() {
 addBuildingGeoJSON();
 
 
+var clock = viewer.clock;
 
 
 
@@ -137,9 +180,8 @@ $(document).on('input', '.slider', function () {
   $(this).next().val($(this).val());
 
   let RotateX = $('#valX').val();
-  let RotateY = $('#valY').val();
+  let RotateY = $('#valY').val()+90;
   let RotateZ = $('#valZ').val();
-
   // RotateX = Number(RotateX);
   // if (isNaN(RotateX)) {
   //     return;
@@ -156,13 +198,18 @@ $(document).on('input', '.slider', function () {
   let heading = Math.toRadians(RotateX);
   let pitch = Math.toRadians(RotateY);
   let roll = Math.toRadians(RotateZ);
+
   const hpr = new HeadingPitchRoll(heading, pitch, roll);
   const orientation = Transforms.headingPitchRollQuaternion(
-    position,
+      entityNew.position.getValue(clock.currentTime),
     hpr
   );
 
-  entityEnv.orientation=orientation;
+  // entityEnv.position.getValue()
+
+  console.log('entityNew',entityNew);
+
+  entityNew.orientation=orientation;
 
   console.log($(this).val());
 
