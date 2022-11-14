@@ -35,6 +35,10 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
-    "@dvgis/cesium-map": "^2.6.1"
+    "@dvgis/cesium-map": "^2.6.1",
+    "add": "^2.0.6",
+    "jquery": "^3.6.1",
+    "jquery-ui": "^1.13.2",
+    "yarn": "^1.22.19"
   }
 }

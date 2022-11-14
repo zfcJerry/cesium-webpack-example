@@ -5,3 +5,27 @@ html, body, #cesiumContainer {
 	padding: 0;
 	overflow: hidden;
 }
+
+#toolbar {
+	width: 500px;
+	height: 300px;
+	top :120px;
+	margin: 0; 
+	background: rgba(42, 42, 42, 0.8);
+	padding: 4px;
+	border-radius: 4px; 
+	overflow: hidden;
+}
+ 
+
+#toolbar input {
+  vertical-align: middle;
+  padding-top: 2px;
+  padding-bottom: 2px;
+} 
+
+.slider{
+	height: 28px;
+	width: 100px;
+	background-color: aquamarine;
+}

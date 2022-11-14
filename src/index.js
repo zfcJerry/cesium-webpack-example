@@ -1,20 +1,35 @@
-import { Ion, Viewer, createWorldTerrain, createOsmBuildings, Cartesian3, Math,IonResource,GeoJsonDataSource,ClassificationType } from "cesium";
+import { Matrix4, Matrix3, Ion, Viewer, Transforms, HeadingPitchRoll, createWorldTerrain, createOsmBuildings, Cartesian3, Math, IonResource, GeoJsonDataSource, ClassificationType } from "cesium";
 
-import {AmapImageryProvider,CoordTransform} from './cesium-map'
+import { AmapImageryProvider, CoordTransform } from './cesium-map'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import "../src/css/main.css"  
+import "../src/css/main.css"
 
- 
+import $ from 'jquery';
 
- 
+import 'jquery-ui';
+
+
+
 // Your access token can be found at: https://cesium.com/ion/tokens.
 // This is the default access token
-Ion.defaultAccessToken =  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1Mjc3MjlkYS03OTcyLTRjOGMtYWYwOC1hNzM4MjI3NWUyMTMiLCJpZCI6MTE0MDQ2LCJpYXQiOjE2Njc4NzI3Nzh9.hLyNLUZKhv2tkHKwPa-HXDOvuLVj3gZ9Z8z9xYaZPXE'
+Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1Mjc3MjlkYS03OTcyLTRjOGMtYWYwOC1hNzM4MjI3NWUyMTMiLCJpZCI6MTE0MDQ2LCJpYXQiOjE2Njc4NzI3Nzh9.hLyNLUZKhv2tkHKwPa-HXDOvuLVj3gZ9Z8z9xYaZPXE'
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer('cesiumContainer', {
   // terrainProvider: createWorldTerrain()
+  geocoder: false, //一种地理位置搜索工具，用于显示相机访问的地理位置。默认使用微软的Bing地图。
+  homeButton: true, //首页位置，点击之后将视图跳转到默认视角。
+  sceneModePicker: true, //切换2D、3D 和 Columbus View (CV) 模式。
+  baseLayerPicker: false, //选择三维数字地球的底图（imagery and terrain）。
+  navigationHelpButton: true, //帮助提示，如何操作数字地球。
+  animation: false,//控制视窗动画的播放速度。
+  creditsDisplay: false, //展示商标版权和数据源。
+  timeline: false, //展示当前时间和允许用户在进度条上拖动到任何一个指定的时间。
+  fullscreenButton: true, //视察全屏按钮,
+  // terrainProvider: createWorldTerrain()//地形
 });
+
+viewer.scene.globe.enableLighting = true;//启用以太阳为光源的地球
 
 // Add Cesium OSM Buildings, a global 3D buildings layer.
 // viewer.scene.primitives.add(createOsmBuildings());   
@@ -28,20 +43,66 @@ const options = {
   crs: 'WGS84' // 使用84坐标系，默认为：GCJ02 WGS84
 }
 
- //中南路地铁站
+//中南路地铁站
 viewer.imageryLayers.addImageryProvider(new AmapImageryProvider(options))
-const ori=[114.332956,30.537535]
-const des=CoordTransform.GCJ02ToWGS84(...ori);
+const ori = [114.197222, 30.529809]
+const des = CoordTransform.GCJ02ToWGS84(...ori);
 //  console.log(des);
 
 // Fly the camera to 洪山广场 at the given longitude, latitude, and height.
+
+
+//var datasource = viewer.dataSources.add(Cesium.GeoJsonDataSource.load("https://geo.datav.aliyun.com/areas_v2/bound/100000.json"));
+var datasource = viewer.dataSources.add(GeoJsonDataSource.load("/zzz-cesium/geojson/武汉市.json"));
+viewer.zoomTo(datasource);
+
+
+const position = Cartesian3.fromDegrees(...des, 10);
+let heading = Math.toRadians(0);
+let pitch = Math.toRadians(90);
+let roll = Math.toRadians(0);
+const hpr = new HeadingPitchRoll(heading, pitch, roll);
+const orientation = Transforms.headingPitchRollQuaternion(
+  position,
+  hpr
+);
+
+const entityEnv = viewer.entities.add({
+  name: 'znkysjzx',
+  position: position,
+  orientation: orientation,
+  model: {
+    // uri: '/zzz-cesium/znkyzjzx/Cesium_Air.glb',
+    uri: '/zzz-cesium/znkyzjzx/env.gltf',
+    minimumPixelSize: 128,
+    maximumScale: 20000
+  }
+});
+
+const entityNew = viewer.entities.add({
+  name: 'znkysjzx',
+  position: position,
+  orientation: orientation,
+  model: {
+    // uri: '/zzz-cesium/znkyzjzx/Cesium_Air.glb',
+    uri: '/zzz-cesium/znkyzjzx/new.gltf',
+    minimumPixelSize: 128,
+    maximumScale: 20000
+  }
+});
+// viewer.trackedEntity = entity;
+
+
+console.log($('toolbar'));
+
 viewer.camera.flyTo({
-  destination :  Cartesian3.fromDegrees(...des,1500),
+  destination: Cartesian3.fromDegrees(...des, 15000),
   // orientation : {
   //   heading : Math.toRadians(0.0),
   //   pitch : Math.toRadians(-15.0),
   // }
 });
+
 
 
 // STEP 3 CODE
@@ -57,12 +118,60 @@ async function addBuildingGeoJSON() {
   for (const entity of dataSource.entities.values) {
     // entity.polygon.classificationType = ClassificationType.TERRAIN;
   }
+
+
   // Move the camera so that the polygon is in view.
-  viewer.flyTo(dataSource);
+  // viewer.flyTo(dataSource);
 }
 
 addBuildingGeoJSON();
- 
+
+
+
+
+
+$(document).on('input', '.slider', function () {
+
+  console.log($(this).next().attr('id'));
+
+  $(this).next().val($(this).val());
+
+  let RotateX = $('#valX').val();
+  let RotateY = $('#valY').val();
+  let RotateZ = $('#valZ').val();
+
+  // RotateX = Number(RotateX);
+  // if (isNaN(RotateX)) {
+  //     return;
+  // }
+
+  // console.log(entityEnv);
+  // var m = entityEnv.modelMatrix; 
+
+  // debugger;
+
+  // var m1 = Matrix3.fromRotationX(Math.toRadians(RotateX));   
+  // entityEnv.modelMatrix = Matrix4.multiplyByMatrix3(m,m1,new Matrix4());
+
+  let heading = Math.toRadians(RotateX);
+  let pitch = Math.toRadians(RotateY);
+  let roll = Math.toRadians(RotateZ);
+  const hpr = new HeadingPitchRoll(heading, pitch, roll);
+  const orientation = Transforms.headingPitchRollQuaternion(
+    position,
+    hpr
+  );
+
+  entityEnv.orientation=orientation;
+
+  console.log($(this).val());
+
+
+
+
+
+});
+
 
 
 

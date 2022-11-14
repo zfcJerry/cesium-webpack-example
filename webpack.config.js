@@ -23,13 +23,18 @@ module.exports = {
     module: {
         rules: [{
             test: /\.css$/,
-            use: [ 'style-loader', 'css-loader' ]
+            use: ['style-loader', 'css-loader']
         }, {
             test: /\.(png|gif|jpg|jpeg|svg|xml|json)$/,
-            use: [ 'url-loader' ]
+            use: ['url-loader']
         }]
     },
     plugins: [
+        // new webpack.ProvidePlugin({
+        //     $: 'jquery',
+        //     jQuery: 'jquery',
+        // }),
+
         new HtmlWebpackPlugin({
             template: 'src/index.html'
         }),
@@ -48,4 +53,17 @@ module.exports = {
     ],
     mode: 'development',
     devtool: 'eval',
+    devServer: {
+        //webpack 更改默认host port 端口 webpack-dev-server
+        port: 8088, //https://blog.csdn.net/sunnywuxian/article/details/78631811
+
+        proxy: {
+
+            '/zzz-cesium': {
+                target: "http://localhost:8080", // 被替换的目标地址，即把 /api 替换成这个
+                pathRewrite: { "^/zzz-cesium": "/zzz-cesium" },
+                secure: false, // 若代理的地址是https协议，需要配置这个属性
+            }
+        }
+    },
 };
