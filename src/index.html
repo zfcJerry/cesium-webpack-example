@@ -11,7 +11,15 @@
 
   <div id="cesiumContainer"></div>
 
-  <div id="toolbar" class="cesium-viewer-toolbar">
+  <div class="toolbar-left">
+    <button id="btnSaveCam">保存当前视角</button>
+    <button id="btnRestoreCam">恢复上次视角</button>
+    <button id="btnShowRotateTool">旋转工具</button>
+    <button id="btnGoHQC">去华侨城吧</button>
+  </div>
+
+
+  <div id="toolbar" class="cesium-viewer-toolbar" style="display: none">
 
     <div>Height-offset</div>
     <input id="hOffset" class="slider" type="range" min="-1000.0" max="1000.0" step="5">
