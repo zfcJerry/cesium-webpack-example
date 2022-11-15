@@ -14,10 +14,7 @@
     "webpack",
     "example"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CesiumGS/cesium-webpack-example.git"
-  },
+
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",

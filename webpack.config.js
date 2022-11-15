@@ -63,7 +63,11 @@ module.exports = {
                 target: "http://localhost:8080", // 被替换的目标地址，即把 /api 替换成这个
                 pathRewrite: { "^/zzz-cesium": "/zzz-cesium" },
                 secure: false, // 若代理的地址是https协议，需要配置这个属性
-            }
+            }, '/hqc': {
+                target: "http://localhost:8080", // 被替换的目标地址，即把 /api 替换成这个
+                pathRewrite: { "^/hqc/.Data/": "/hqc/Data/" },
+                secure: false, // 若代理的地址是https协议，需要配置这个属性
+            },
         }
     },
 };
